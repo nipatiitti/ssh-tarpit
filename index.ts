@@ -1,6 +1,6 @@
 import net from 'net'
 
-const PORT = process.env.PORT || 2222
+const PORT = process.env.PORT || 22
 const TIMEOUT = Number(process.env.TIMEOUT || 10000)
 
 const clients = new Map<net.Socket, { banner: string; startedTime: number }>()

@@ -8,4 +8,4 @@ RUN yarn install
 ADD . /usr/src/app
 
 CMD [ "yarn", "start" ]
-EXPOSE 2222
+EXPOSE 22
