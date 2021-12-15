@@ -1,7 +1,7 @@
 import net from 'net'
 
 const PORT = process.env.PORT || 2222
-const WAIT_TIME = Number(process.env.WAIT_TIME || 10000)
+const TIMEOUT = Number(process.env.TIMEOUT || 10000)
 
 const clients = new Map<net.Socket, { banner: string; startedTime: number }>()
 
@@ -23,12 +23,17 @@ async function handleConnection(connection: net.Socket) {
     connection.on('close', handleDelete)
     connection.on('end', handleDelete)
 
-    connection.once('data', (data) => {
+    connection.once('data', async (data) => {
         const banner = data.toString().trim()
         clients.set(connection, { banner, startedTime })
 
         if (banner === 'status') {
             handleDelete()
+            const connections = await new Promise<number>((res) => {
+                server.getConnections((err, count) => {
+                    res(count)
+                })
+            })
             const message = JSON.stringify({
                 status: 'ok',
                 clients: Array.from(clients.keys()).map((socket) => {
@@ -41,7 +46,7 @@ async function handleConnection(connection: net.Socket) {
                         startedTime: data?.startedTime || 0,
                     }
                 }),
-                totalClients: server.connections - 1, // -1 because the current connection is not counted
+                totalClients: connections - 1, // -1 because the current connection is not counted
                 uptime: process.uptime(),
             })
             connection.end(message)
@@ -57,7 +62,7 @@ async function handleConnection(connection: net.Socket) {
 
         connection.write(`${Math.floor(Math.random() * 4_294_967_296)}\r\n`)
 
-        await new Promise((resolve) => setTimeout(resolve, WAIT_TIME))
+        await new Promise((resolve) => setTimeout(resolve, TIMEOUT))
     }
 }
 
