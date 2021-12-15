@@ -1,9 +1,12 @@
+import fs from 'fs'
 import net from 'net'
 
 const PORT = process.env.PORT || 22
 const TIMEOUT = Number(process.env.TIMEOUT || 10000)
 
 const clients = new Map<net.Socket, { banner: string; startedTime: number }>()
+
+const logfile = fs.createWriteStream(`logs/${Date.now()}_log.txt`, { flags: 'a' })
 
 // Infinite generator used for the for await loop
 function* infinite() {
@@ -12,15 +15,32 @@ function* infinite() {
     }
 }
 
+function generateLog(socket: net.Socket) {
+    const data = clients.get(socket)
+    if (!data) {
+        return
+    }
+
+    const { banner, startedTime } = data
+    const today = new Date().toISOString()
+    const message = `[${today}],${socket.remoteAddress},${socket.remotePort},${banner},${startedTime},${Date.now()}\n`
+    logfile.write(message)
+}
+
 async function handleConnection(connection: net.Socket) {
     const startedTime = Date.now()
     clients.set(connection, { banner: '', startedTime })
+    let deleted = false
 
     const handleDelete = () => {
+        if (deleted) {
+            return
+        }
+        generateLog(connection)
         clients.delete(connection)
+        deleted = true
     }
 
-    connection.on('close', handleDelete)
     connection.on('end', handleDelete)
 
     connection.once('data', async (data) => {

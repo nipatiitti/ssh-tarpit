@@ -6,5 +6,7 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: always
+        volumes:
+            - '${PWD}/logs:/usr/src/app/logs'
         ports:
             - '22:22'
