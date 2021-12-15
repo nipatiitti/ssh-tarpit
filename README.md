@@ -17,8 +17,8 @@ Or then with yarn:
 
 The tarpit has 2 environment variables:
 
--   `PORT`: the port to listen to.
--   `TIMEOUT`: the timeout in seconds between tcp responses.
+-   `PORT`: [default: 22] the port to listen to (remember to update Dockerfile and docker-compose).
+-   `TIMEOUT`: [default: 10000 (10s)] the timeout in milliseconds between tcp responses.
 
 ## Usage
 
