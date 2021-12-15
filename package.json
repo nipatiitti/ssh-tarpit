@@ -1,0 +1,19 @@
+{
+    "name": "node-ssh-tarpit",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "author": "Niilo Jaakkola (niilo.jaakkola@icloud.com)",
+    "license": "MIT",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "start": "ts-node-dev --respawn --transpile-only index.ts"
+    },
+    "dependencies": {
+        "typescript": "^4.5.4"
+    },
+    "devDependencies": {
+        "@types/node": "^16.11.13",
+        "ts-node-dev": "^1.1.8"
+    }
+}

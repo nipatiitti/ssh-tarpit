@@ -1,0 +1,25 @@
+{
+    "exclude": ["node_modules", "dist"],
+    "include": ["src/**/*.ts", "index.ts"],
+    "compilerOptions": {
+        "lib": ["es2020", "DOM"],
+        "target": "ES2020",
+        "declaration": true,
+        "declarationDir": "./",
+        "outDir": "dist",
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "resolveJsonModule": false,
+        "allowJs": true,
+        "alwaysStrict": true,
+        "sourceMap": true,
+        "noEmitOnError": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "skipLibCheck": true,
+        "diagnostics": true
+    }
+}
