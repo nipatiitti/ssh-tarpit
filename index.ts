@@ -31,9 +31,10 @@ async function handleConnection(connection: net.Socket) {
     const startedTime = Date.now()
     clients.set(connection, { banner: '', startedTime })
     let deleted = false
+    let statusConnection = false
 
     const handleDelete = () => {
-        if (deleted) {
+        if (deleted || statusConnection) {
             return
         }
         generateLog(connection)
@@ -48,6 +49,7 @@ async function handleConnection(connection: net.Socket) {
         clients.set(connection, { banner, startedTime })
 
         if (banner === 'status') {
+            statusConnection = true
             handleDelete()
             const connections = await new Promise<number>((res) => {
                 server.getConnections((err, count) => {
