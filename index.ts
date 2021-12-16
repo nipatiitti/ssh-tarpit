@@ -32,7 +32,7 @@ function generateLog(socket: net.Socket) {
     logfile.write(message)
 }
 
-async function generateStatus(connection: net.Socket) {
+async function generateStatus(connection: net.Socket, fromTCP: boolean = false) {
     const connections = await new Promise<number>((res) => {
         server.getConnections((err, count) => {
             res(count)
@@ -52,7 +52,7 @@ async function generateStatus(connection: net.Socket) {
                     startedTime: data?.startedTime || 0,
                 }
             }),
-        totalClients: Math.max(connections - 1, 0),
+        totalClients: fromTCP ? connections - 1 : connections,
         uptime: process.uptime(),
     })
     return message
@@ -94,7 +94,7 @@ async function handleConnection(connection: net.Socket) {
         if (banner === 'status') {
             statusConnection = true
             handleDelete()
-            const message = await generateStatus(connection)
+            const message = await generateStatus(connection, true)
             connection.end(message)
         } else if (banner.includes('GET')) {
             statusConnection = true
