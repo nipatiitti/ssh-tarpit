@@ -34,15 +34,22 @@ async function handleConnection(connection: net.Socket) {
     let statusConnection = false
 
     const handleDelete = () => {
+        clients.delete(connection)
+
         if (deleted || statusConnection) {
             return
         }
+
         generateLog(connection)
-        clients.delete(connection)
         deleted = true
     }
 
     connection.on('end', handleDelete)
+
+    connection.on('error', (err) => {
+        console.log(`[${new Date().toISOString()}] ClientError ${err.message}`)
+        handleDelete()
+    })
 
     connection.once('data', async (data) => {
         const banner = data.toString().trim()
@@ -58,16 +65,18 @@ async function handleConnection(connection: net.Socket) {
             })
             const message = JSON.stringify({
                 status: 'ok',
-                clients: Array.from(clients.keys()).map((socket) => {
-                    const data = clients.get(socket)
-                    return {
-                        banner: data?.banner || '',
-                        ip: socket.remoteAddress,
-                        family: socket.remoteFamily,
-                        port: socket.remotePort,
-                        startedTime: data?.startedTime || 0,
-                    }
-                }),
+                clients: Array.from(clients.keys())
+                    .filter((item) => item !== connection)
+                    .map((socket) => {
+                        const data = clients.get(socket)
+                        return {
+                            banner: data?.banner || '',
+                            ip: socket.remoteAddress,
+                            family: socket.remoteFamily,
+                            port: socket.remotePort,
+                            startedTime: data?.startedTime || 0,
+                        }
+                    }),
                 totalClients: connections - 1, // -1 because the current connection is not counted
                 uptime: process.uptime(),
             })
@@ -89,6 +98,10 @@ async function handleConnection(connection: net.Socket) {
 }
 
 const server = net.createServer(handleConnection)
+
+server.on('error', (err) => {
+    console.log(`[${new Date().toISOString()}] ServerError ${err.message}`)
+})
 
 server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
