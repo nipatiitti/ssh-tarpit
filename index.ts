@@ -7,7 +7,7 @@ const TIMEOUT = Number(process.env.TIMEOUT || 10000)
 
 const clients = new Map<net.Socket, { banner: string; startedTime: number }>()
 
-const logfile = fs.createWriteStream(`logs/${Date.now()}_log.txt`, { flags: 'a' })
+const logfile = fs.createWriteStream(`logs/${new Date().toISOString()}_log.txt`, { flags: 'a' })
 
 // Infinite generator used for the for await loop
 function* infinite() {
