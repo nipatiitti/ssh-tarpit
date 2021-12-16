@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>SSH-tarpit</title>
+        <style>
+            html {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            p {
+                margin-top: 0;
+            }
+
+            .client {
+                margin-top: 3em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <h1>SSH-TARPIT</h1>
+            <p><strong>Uptime: </strong><span id="uptime"></span></p>
+            <p><strong>Total clients: </strong><span id="clients"></span></p>
+        </div>
+        <template id="template">
+            <div class="client">
+                <h3 class="ip-add"></h3>
+                <span class="banner"></span><br />
+                <span class="duration"></span>
+            </div>
+            <hr />
+        </template>
+        <script>
+            // Converts milliseconds to human readable format
+            function msToTime(duration) {
+                var milliseconds = parseInt((duration % 1000) / 100),
+                    seconds = parseInt((duration / 1000) % 60),
+                    minutes = parseInt((duration / (1000 * 60)) % 60),
+                    hours = parseInt((duration / (1000 * 60 * 60)) % 24)
+
+                hours = hours < 10 ? "0" + hours : hours
+                minutes = minutes < 10 ? "0" + minutes : minutes
+                seconds = seconds < 10 ? "0" + seconds : seconds
+
+                return hours + ":" + minutes + ":" + seconds + "." + milliseconds
+            }
+
+            /* Example response
+                {
+                    "status": "ok",
+                    "clients": [
+                        {
+                            "banner": "SSH-2.0-OpenSSH_5.3 Ubuntu",
+                            "ip": "1.1.1.1",
+                            "family": "IPv6",
+                            "port": "2222",
+                            "startedTime": 61239081345,
+                        }
+                    ],
+                    "totalClients": 0,
+                    "uptime": 8269.337943895
+                }
+            */
+
+            const run = async () => {
+                const response = await (
+                    await fetch("http://34.75.134.252:8080/", {
+                        method: "GET",
+                    })
+                ).json()
+
+                const uptime = document.getElementById("uptime")
+                uptime.innerText = msToTime(response.uptime * 1000)
+
+                const clients = document.getElementById("clients")
+                clients.innerText = response.totalClients
+
+                const template = document.getElementById("template")
+                const container = document.getElementById("container")
+
+                response.clients.forEach((client) => {
+                    const clientElement = template.content.cloneNode(true)
+                    clientElement.querySelector(".ip-add").innerText = `${client.family} ${client.ip}:${client.port}`
+                    clientElement.querySelector(".banner").innerText = client.banner
+
+                    const duration = Date.now() - client.startedTime
+                    clientElement.querySelector(".duration").innerText = msToTime(duration)
+                    container.appendChild(clientElement)
+                })
+            }
+
+            run()
+        </script>
+    </body>
+</html>
