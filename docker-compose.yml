@@ -10,3 +10,4 @@ services:
             - '${PWD}/logs:/usr/src/app/logs'
         ports:
             - '22:22'
+            - '8080:8080'
